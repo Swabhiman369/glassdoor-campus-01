@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* EdTech Portal Design System - Glassy Matte Theme */
+
+@layer base {
+  :root {
+    /* Core Brand Colors */
+    --primary: 193 100% 50%;     /* Cyan - main brand */
+    --primary-glow: 193 100% 70%; /* Lighter cyan */
+    --secondary: 280 60% 65%;     /* Purple accent */
+    --accent: 15 90% 65%;         /* Coral highlight */
+    
+    /* Dark theme base */
+    --background: 220 25% 8%;     /* Very dark slate */
+    --surface: 220 20% 12%;       /* Card background */
+    --surface-muted: 220 15% 18%; /* Muted surface */
+    
+    --foreground: 210 40% 98%;    /* Almost white text */
+    --muted-foreground: 215 20% 65%; /* Muted text */
+    
+    /* Glass effects */
+    --glass-bg: 220 20% 12% / 0.8;  /* Semi-transparent background */
+    --glass-border: 215 30% 25% / 0.3; /* Subtle border */
+    
+    /* Status colors - Matt Finish Progress Indicators */
+    --success: 120 30% 45%;      /* Subtle green - not too dark, not too bright */
+    --warning: 38 92% 50%;
+    --error: 0 84% 60%;
+    --progress-complete: 120 30% 45%;  /* Subtle green for completed */
+    --progress-incomplete: 215 15% 50%; /* Grey for incomplete */
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-glass: linear-gradient(145deg, hsl(var(--glass-bg)), hsl(220 15% 15% / 0.6));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--secondary) / 0.1));
+    
+    /* Shadows & Glows */
+    --shadow-glass: 0 8px 32px hsl(220 25% 5% / 0.4);
+    --shadow-glow: 0 0 40px hsl(var(--primary) / 0.15);
+    --shadow-accent: 0 0 30px hsl(var(--accent) / 0.2);
+    
+    /* Animation */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    /* Component overrides for compatibility */
+    --card: var(--surface);
+    --card-foreground: var(--foreground);
+    --popover: var(--surface);
+    --popover-foreground: var(--foreground);
+    --primary-foreground: 220 25% 8%;
+    --secondary-foreground: var(--foreground);
+    --muted: var(--surface-muted);
+    --destructive: var(--error);
+    --destructive-foreground: var(--foreground);
+    --border: hsl(var(--glass-border));
+    --input: var(--surface-muted);
+    --ring: var(--primary);
+    --radius: 1rem;
+  }
+}
+
+/* Glass effect utilities */
+@layer components {
+  .glass-card {
+    @apply bg-gradient-to-br from-surface/80 to-surface-muted/60;
+    @apply backdrop-blur-xl border border-white/10;
+    @apply shadow-[var(--shadow-glass)];
+  }
+  
+  .glass-nav {
+    @apply bg-surface/70 backdrop-blur-2xl border-b border-white/5;
+  }
+  
+  .glow-primary {
+    @apply shadow-[var(--shadow-glow)];
+  }
+  
+  .glow-accent {
+    @apply shadow-[var(--shadow-accent)];
+  }
+  
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+  
+  .transition-bounce {
+    transition: var(--transition-bounce);
+  }
+
+  /* Hide scrollbars while maintaining scroll functionality */
+  .hide-scrollbar {
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;  /* Safari and Chrome */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Global scrollbar hiding */
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  *::-webkit-scrollbar {
+    display: none;
+  }
+}
