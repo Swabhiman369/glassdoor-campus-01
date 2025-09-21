@@ -1,91 +1,102 @@
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  BookOpen, 
-  Clock, 
-  Star, 
-  Play, 
-  CheckCircle, 
-  Filter,
-  Search,
-  MoreVertical
-} from "lucide-react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Filter, Search } from "lucide-react";
+import { useState, useMemo } from "react";
+import CourseCard from "@/components/CourseCard";
+import SubjectCard from "@/components/SubjectCard";
+import { useCourseData, Course } from "@/hooks/useCourseData";
 
 const CoursesSection = () => {
-  const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
   const [filterBy, setFilterBy] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const courses = [
-    {
-      id: 1,
-      title: "Complete React Development Course",
-      author: "John Smith",
-      rating: 4.8,
-      students: 15420,
-      duration: "12 hours",
-      level: "Intermediate",
-      progress: 65,
-      status: "running",
-      image: "/api/placeholder/300/200",
-      tags: ["React", "JavaScript", "Frontend"],
-      price: "$49.99"
-    },
-    {
-      id: 2,
-      title: "Advanced Python Programming",
-      author: "Sarah Johnson",
-      rating: 4.9,
-      students: 8930,
-      duration: "18 hours",
-      level: "Advanced",
-      progress: 100,
-      status: "completed",
-      image: "/api/placeholder/300/200",
-      tags: ["Python", "Backend", "AI"],
-      price: "$79.99"
-    },
-    {
-      id: 3,
-      title: "Machine Learning Fundamentals",
-      author: "Dr. Mike Chen",
-      rating: 4.7,
-      students: 12340,
-      duration: "24 hours",
-      level: "Beginner",
-      progress: 0,
-      status: "wishlist",
-      image: "/api/placeholder/300/200",
-      tags: ["ML", "Python", "Data Science"],
-      price: "$99.99"
-    },
-    {
-      id: 4,
-      title: "Full Stack Web Development",
-      author: "Alex Rodriguez",
-      rating: 4.6,
-      students: 20150,
-      duration: "30 hours",
-      level: "Intermediate",
-      progress: 23,
-      status: "running",
-      image: "/api/placeholder/300/200",
-      tags: ["React", "Node.js", "MongoDB"],
-      price: "$119.99"
+  const {
+    courses,
+    subjects,
+    enrolledCourses,
+    wishlistCourses,
+    enrollCourse,
+    toggleWishlist
+  } = useCourseData();
+
+  // Filter courses based on tab, search, and filters
+  const filteredCourses = useMemo(() => {
+    let filtered: Course[] = [];
+
+    // Tab filtering
+    switch (selectedTab) {
+      case "all":
+        filtered = courses;
+        break;
+      case "subjects":
+        // For subjects tab, we'll show subjects instead of courses
+        return [];
+      case "mycourses":
+        filtered = enrolledCourses;
+        break;
+      case "wishlist":
+        filtered = wishlistCourses;
+        break;
+      default:
+        filtered = courses;
     }
-  ];
 
-  const filteredCourses = courses.filter(course => {
-    if (selectedTab === "all") return true;
-    return course.status === selectedTab;
-  });
+    // Search filtering
+    if (searchQuery.trim()) {
+      filtered = filtered.filter(course =>
+        course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        course.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        course.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        course.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
+
+    // Level filtering
+    if (filterBy !== "all") {
+      if (filterBy === "free") {
+        filtered = filtered.filter(course => course.isFree);
+      } else if (filterBy === "paid") {
+        filtered = filtered.filter(course => !course.isFree);
+      } else {
+        filtered = filtered.filter(course => 
+          course.level.toLowerCase() === filterBy.toLowerCase()
+        );
+      }
+    }
+
+    // Sorting
+    switch (sortBy) {
+      case "recent":
+        filtered = [...filtered].sort((a, b) => 
+          new Date(b.addedDate).getTime() - new Date(a.addedDate).getTime()
+        );
+        break;
+      case "priceLowToHigh":
+        filtered = [...filtered].sort((a, b) => a.price - b.price);
+        break;
+      case "priceHighToLow":
+        filtered = [...filtered].sort((a, b) => b.price - a.price);
+        break;
+      case "popular":
+        filtered = [...filtered].sort((a, b) => b.students - a.students);
+        break;
+      default:
+        break;
+    }
+
+    return filtered;
+  }, [courses, enrolledCourses, wishlistCourses, selectedTab, searchQuery, filterBy, sortBy]);
+
+  const handleViewCourses = (subjectId: number) => {
+    const subject = subjects.find(s => s.id === subjectId);
+    if (subject) {
+      setSearchQuery(subject.name);
+      setSelectedTab("all");
+    }
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -122,7 +133,9 @@ const CoursesSection = () => {
             <input
               type="text"
               placeholder="Search courses..."
-              className="glass-card pl-10 pr-4 py-2 rounded-xl border border-white/10 bg-surface/60 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="glass-card pl-10 pr-4 py-2 rounded-xl border border-white/10 bg-surface/60 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 w-64"
             />
           </div>
         </motion.div>
@@ -134,13 +147,13 @@ const CoursesSection = () => {
           <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full lg:w-auto">
             <TabsList className="glass-card p-1 bg-surface/60">
               <TabsTrigger value="all" className="data-[state=active]:bg-gradient-primary data-[state=active]:text-primary-foreground">
-                All Courses
+                All
               </TabsTrigger>
-              <TabsTrigger value="running" className="data-[state=active]:bg-gradient-primary data-[state=active]:text-primary-foreground">
-                Running
+              <TabsTrigger value="subjects" className="data-[state=active]:bg-gradient-primary data-[state=active]:text-primary-foreground">
+                Subjects
               </TabsTrigger>
-              <TabsTrigger value="completed" className="data-[state=active]:bg-gradient-primary data-[state=active]:text-primary-foreground">
-                Completed
+              <TabsTrigger value="mycourses" className="data-[state=active]:bg-gradient-primary data-[state=active]:text-primary-foreground">
+                My Courses
               </TabsTrigger>
               <TabsTrigger value="wishlist" className="data-[state=active]:bg-gradient-primary data-[state=active]:text-primary-foreground">
                 Wishlist
@@ -150,14 +163,14 @@ const CoursesSection = () => {
 
           <div className="flex items-center space-x-3">
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[140px] glass-card border-white/10">
+              <SelectTrigger className="w-[160px] glass-card border-white/10">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent className="glass-card border-white/10">
                 <SelectItem value="recent">Most Recent</SelectItem>
                 <SelectItem value="popular">Most Popular</SelectItem>
-                <SelectItem value="rating">Highest Rated</SelectItem>
-                <SelectItem value="progress">Progress</SelectItem>
+                <SelectItem value="priceLowToHigh">Price: Low to High</SelectItem>
+                <SelectItem value="priceHighToLow">Price: High to Low</SelectItem>
               </SelectContent>
             </Select>
 
@@ -167,7 +180,9 @@ const CoursesSection = () => {
                 <SelectValue placeholder="Filter" />
               </SelectTrigger>
               <SelectContent className="glass-card border-white/10">
-                <SelectItem value="all">All Levels</SelectItem>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="free">Free</SelectItem>
+                <SelectItem value="paid">Paid</SelectItem>
                 <SelectItem value="beginner">Beginner</SelectItem>
                 <SelectItem value="intermediate">Intermediate</SelectItem>
                 <SelectItem value="advanced">Advanced</SelectItem>
@@ -176,108 +191,46 @@ const CoursesSection = () => {
           </div>
         </div>
 
-        {/* Course Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCourses.map((course, index) => (
-            <motion.div
-              key={course.id}
-              variants={itemVariants}
-              transition={{ delay: index * 0.1 }}
-              className="group glass-card p-4 rounded-2xl hover:shadow-glow transition-smooth cursor-pointer"
-              whileHover={{ y: -5 }}
-              onClick={() => navigate('/ai-teacher', { state: { videoId: course.id, videoTitle: course.title } })}
-            >
-              {/* Course Image */}
-              <div className="aspect-video bg-gradient-glass rounded-xl mb-4 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-primary opacity-20" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <BookOpen className="w-12 h-12 text-primary" />
-                </div>
-                
-                {/* Play Button Overlay */}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-smooth flex items-center justify-center">
-                  <Button 
-                    size="sm" 
-                    className="bg-primary/90 hover:bg-primary text-primary-foreground rounded-full"
-                  >
-                    <Play className="w-4 h-4 mr-2" />
-                    {course.status === 'completed' ? 'Review' : 
-                     course.status === 'running' ? 'Continue' : 'Start'}
-                  </Button>
-                </div>
-
-                {/* Status Badge */}
-                <div className="absolute top-3 right-3">
-                  <Badge 
-                    variant={
-                      course.status === 'completed' ? 'default' :
-                      course.status === 'running' ? 'secondary' : 'outline'
-                    }
-                    className={
-                      course.status === 'completed' ? 'bg-success text-white' :
-                      course.status === 'running' ? 'bg-warning text-white' : 'bg-surface/80'
-                    }
-                  >
-                    {course.status === 'completed' && <CheckCircle className="w-3 h-3 mr-1" />}
-                    {course.status === 'running' && <Play className="w-3 h-3 mr-1" />}
-                    {course.status.charAt(0).toUpperCase() + course.status.slice(1)}
-                  </Badge>
-                </div>
+        {/* Content Based on Selected Tab */}
+        {selectedTab === "subjects" ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {subjects.map((subject, index) => (
+              <SubjectCard
+                key={subject.id}
+                subject={subject}
+                onViewCourses={handleViewCourses}
+                index={index}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+            {filteredCourses.length > 0 ? (
+              filteredCourses.map((course, index) => (
+                <CourseCard
+                  key={course.id}
+                  course={course}
+                  onEnroll={enrollCourse}
+                  onToggleWishlist={toggleWishlist}
+                  index={index}
+                />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-muted-foreground text-lg">
+                  {searchQuery 
+                    ? `No courses found for "${searchQuery}"`
+                    : selectedTab === "mycourses" 
+                      ? "You haven't enrolled in any courses yet"
+                      : selectedTab === "wishlist"
+                        ? "Your wishlist is empty"
+                        : "No courses available"
+                  }
+                </p>
               </div>
-
-              {/* Course Info */}
-              <div className="space-y-3">
-                <div>
-                  <h3 className="font-semibold text-foreground group-hover:text-primary transition-smooth line-clamp-2">
-                    {course.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">by {course.author}</p>
-                </div>
-
-                {/* Rating and Stats */}
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <div className="flex items-center space-x-1">
-                    <Star className="w-4 h-4 text-warning fill-current" />
-                    <span>{course.rating}</span>
-                    <span>({course.students.toLocaleString()})</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Clock className="w-4 h-4" />
-                    <span>{course.duration}</span>
-                  </div>
-                </div>
-
-                {/* Progress Bar */}
-                {course.status === 'running' && (
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Progress</span>
-                      <span className="text-foreground font-medium">{course.progress}%</span>
-                    </div>
-                    <Progress value={course.progress} className="h-2" />
-                  </div>
-                )}
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-1">
-                  {course.tags.slice(0, 3).map((tag) => (
-                    <Badge key={tag} variant="outline" className="text-xs bg-surface/60 border-white/10">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-
-                {/* Price and Level */}
-                <div className="flex items-center justify-between pt-2 border-t border-white/10">
-                  <Badge variant="outline" className="bg-surface/60 border-white/10">
-                    {course.level}
-                  </Badge>
-                  <span className="font-semibold text-foreground">{course.price}</span>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+            )}
+          </div>
+        )}
       </motion.div>
     </motion.div>
   );
