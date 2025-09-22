@@ -68,6 +68,9 @@ const ProfilePage = () => {
     visible: { opacity: 1, y: 0 }
   };
 
+  const [activeTab, setActiveTab] = useState<'profile' | 'settings'>('profile');
+  const [showEditModal, setShowEditModal] = useState(false);
+
   return (
     <div className="min-h-screen bg-background">
       <DynamicNavbar 
@@ -75,164 +78,159 @@ const ProfilePage = () => {
         onTabChange={handleTabChange}
         onProfileClick={() => {}} // No-op since we're already on profile page
       />
-      
-      <main className="max-w-7xl mx-auto hide-scrollbar">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="p-6 space-y-6"
-        >
-          {/* Header */}
-          <motion.div variants={itemVariants}>
-            <h1 className="text-3xl font-bold text-foreground">Profile</h1>
-            <p className="text-muted-foreground">Manage your account and view your progress</p>
-          </motion.div>
-
-          {/* Profile Info Card */}
-          <motion.div variants={itemVariants}>
+      <main className="max-w-7xl mx-auto hide-scrollbar p-6">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Left: User Details & Tabs */}
+          <div className="w-full lg:w-1/3 space-y-6">
             <Card className="glass-card border-white/10">
               <CardHeader>
-                <div className="flex items-center space-x-6">
+                <div className="flex flex-col items-center space-y-4">
                   <Avatar className="w-24 h-24">
                     <AvatarImage src="/api/placeholder/96/96" />
                     <AvatarFallback className="bg-gradient-primary text-primary-foreground text-2xl">
                       <User className="w-12 h-12" />
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1">
-                    <CardTitle className="text-2xl mb-2">Arjun Sharma</CardTitle>
-                    <CardDescription className="space-y-2">
-                      <div className="flex items-center text-muted-foreground">
-                        <Mail className="w-4 h-4 mr-2" />
-                        arjun.sharma@email.com
-                      </div>
-                      <div className="flex items-center text-muted-foreground">
-                        <School className="w-4 h-4 mr-2" />
-                        Delhi Public School
-                      </div>
-                      <div className="flex items-center text-muted-foreground">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        Joined October 2024
-                      </div>
-                    </CardDescription>
-                  </div>
-                  <div className="flex flex-col space-y-2">
-                    <Button variant="outline" className="glass-card border-white/20">
-                      <Settings className="w-4 h-4 mr-2" />
-                      Edit Profile
-                    </Button>
-                    <Button variant="outline" className="glass-card border-white/20 text-error hover:text-error">
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Logout
-                    </Button>
-                  </div>
+                  <CardTitle className="text-2xl mb-2">Arjun Sharma</CardTitle>
+                  <CardDescription className="space-y-2 text-center">
+                    <div className="flex items-center justify-center text-muted-foreground">
+                      <Mail className="w-4 h-4 mr-2" />
+                      arjun.sharma@email.com
+                    </div>
+                    <div className="flex items-center justify-center text-muted-foreground">
+                      <School className="w-4 h-4 mr-2" />
+                      Delhi Public School
+                    </div>
+                    <div className="flex items-center justify-center text-muted-foreground">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Joined October 2024
+                    </div>
+                  </CardDescription>
+                  <Button variant="outline" className="glass-card border-white/20 w-full" onClick={() => setShowEditModal(true)}>
+                    <Settings className="w-4 h-4 mr-2" />
+                    Edit Profile
+                  </Button>
+                  <Button variant="outline" className="glass-card border-white/20 text-error hover:text-error w-full">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </Button>
                 </div>
               </CardHeader>
             </Card>
-          </motion.div>
-
-          {/* Stats Overview */}
-          <motion.div variants={itemVariants}>
-            <Card className="glass-card border-white/10">
-              <CardHeader>
-                <CardTitle>Statistics Overview</CardTitle>
-                <CardDescription>Your learning progress at a glance</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {stats.map((stat, index) => (
-                    <motion.div
-                      key={stat.label}
-                      variants={itemVariants}
-                      transition={{ delay: index * 0.1 }}
-                      className="text-center glass-card p-6 rounded-xl"
-                    >
-                      <div className="flex items-center justify-center mb-3">
-                        <stat.icon className={`w-8 h-8 ${stat.color}`} />
-                      </div>
-                      <div className="text-3xl font-bold text-foreground mb-1">{stat.value}</div>
-                      <div className="text-sm text-muted-foreground">{stat.label}</div>
-                    </motion.div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <div className="grid lg:grid-cols-2 gap-6">
-            {/* Subject Progress */}
-            <motion.div variants={itemVariants}>
-              <Card className="glass-card border-white/10">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <BookOpen className="w-5 h-5 mr-2" />
-                    Subject Progress
-                  </CardTitle>
-                  <CardDescription>Your performance across different subjects</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {subjects.map((subject, index) => (
-                      <motion.div
-                        key={subject.name}
-                        variants={itemVariants}
-                        transition={{ delay: index * 0.05 }}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div>
-                            <span className="font-medium text-foreground">{subject.name}</span>
-                            <Badge variant="outline" className="ml-2 text-xs bg-surface/60 border-white/10">
-                              {subject.level}
-                            </Badge>
-                          </div>
-                          <span className="text-sm text-muted-foreground">{subject.progress}%</span>
-                        </div>
-                        <Progress 
-                          value={subject.progress} 
-                          className="h-3"
-                        />
-                      </motion.div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Recent Achievements */}
-            <motion.div variants={itemVariants}>
-              <Card className="glass-card border-white/10">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Trophy className="w-5 h-5 mr-2" />
-                    Recent Achievements
-                  </CardTitle>
-                  <CardDescription>Your latest accomplishments and milestones</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {achievements.map((achievement, index) => (
-                      <motion.div
-                        key={index}
-                        variants={itemVariants}
-                        transition={{ delay: index * 0.05 }}
-                        className="flex items-center space-x-4 glass-card p-4 rounded-xl"
-                      >
-                        <div className={`p-2 rounded-lg bg-surface/60`}>
-                          <achievement.icon className={`w-5 h-5 ${achievement.color}`} />
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-medium text-foreground">{achievement.title}</div>
-                          <div className="text-sm text-muted-foreground">{achievement.date}</div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+            <div className="flex gap-2 mt-2">
+              <Button variant={activeTab === 'profile' ? 'default' : 'outline'} className="flex-1" onClick={() => setActiveTab('profile')}>Profile</Button>
+              <Button variant={activeTab === 'settings' ? 'default' : 'outline'} className="flex-1" onClick={() => setActiveTab('settings')}>Settings</Button>
+            </div>
           </div>
-        </motion.div>
+          {/* Right: Reports/Settings */}
+          <div className="w-full lg:w-2/3">
+            {activeTab === 'profile' ? (
+              <div className="space-y-6">
+                {/* Stats Overview */}
+                <Card className="glass-card border-white/10">
+                  <CardHeader>
+                    <CardTitle>Statistics Overview</CardTitle>
+                    <CardDescription>Your learning progress at a glance</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                      {stats.map((stat, index) => (
+                        <motion.div
+                          key={stat.label}
+                          variants={itemVariants}
+                          transition={{ delay: index * 0.1 }}
+                          className="text-center glass-card p-6 rounded-xl"
+                        >
+                          <div className="flex items-center justify-center mb-3">
+                            <stat.icon className={`w-8 h-8 ${stat.color}`} />
+                          </div>
+                          <div className="text-3xl font-bold text-foreground mb-1">{stat.value}</div>
+                          <div className="text-sm text-muted-foreground">{stat.label}</div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+                <div className="grid lg:grid-cols-2 gap-6">
+                  {/* Subject Progress */}
+                  <Card className="glass-card border-white/10">
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <BookOpen className="w-5 h-5 mr-2" />
+                        Subject Progress
+                      </CardTitle>
+                      <CardDescription>Your performance across different subjects</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-6">
+                        {subjects.map((subject, index) => (
+                          <div key={subject.name} className="mb-2">
+                            <div className="flex items-center justify-between mb-2">
+                              <div>
+                                <span className="font-medium text-foreground">{subject.name}</span>
+                                <Badge variant="outline" className="ml-2 text-xs bg-surface/60 border-white/10">
+                                  {subject.level}
+                                </Badge>
+                              </div>
+                              <span className="text-sm text-muted-foreground">{subject.progress}%</span>
+                            </div>
+                            <Progress value={subject.progress} className="h-3" />
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                  {/* Recent Achievements */}
+                  <Card className="glass-card border-white/10">
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <Trophy className="w-5 h-5 mr-2" />
+                        Recent Achievements
+                      </CardTitle>
+                      <CardDescription>Your latest accomplishments and milestones</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {achievements.map((achievement, index) => (
+                          <div key={index} className="flex items-center space-x-4 glass-card p-4 rounded-xl">
+                            <div className={`p-2 rounded-lg bg-surface/60`}>
+                              <achievement.icon className={`w-5 h-5 ${achievement.color}`} />
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-medium text-foreground">{achievement.title}</div>
+                              <div className="text-sm text-muted-foreground">{achievement.date}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            ) : (
+              <Card className="glass-card border-white/10">
+                <CardHeader>
+                  <CardTitle>Settings</CardTitle>
+                  <CardDescription>Manage your account, notifications, and privacy preferences</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {/* Settings form will be implemented here */}
+                  <div className="text-muted-foreground">Settings functionality coming soon...</div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+        {/* Edit Profile Modal (scaffold) */}
+        {showEditModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-background rounded-2xl p-8 w-full max-w-md shadow-lg">
+              <h2 className="text-xl font-bold mb-4">Edit Profile</h2>
+              {/* Edit Profile form will be implemented here */}
+              <Button onClick={() => setShowEditModal(false)} className="mt-4 w-full">Close</Button>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

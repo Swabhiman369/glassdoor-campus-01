@@ -67,10 +67,19 @@ const CourseCard = ({ course, onEnroll, onToggleWishlist, index = 0 }: CourseCar
       {/* Course Image */}
       <div className="aspect-video bg-gradient-glass rounded-xl mb-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-primary opacity-20" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <BookOpen className="w-12 h-12 text-primary" />
-        </div>
-        <br />
+        {course.image ? (
+          <img
+            src={course.image}
+            alt={course.title}
+            className="object-cover w-full h-full absolute inset-0"
+            style={{ zIndex: 1 }}
+            loading="lazy"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <BookOpen className="w-12 h-12 text-primary" />
+          </div>
+        )}
         {/* Play Button Overlay */}
         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-smooth flex items-center justify-center">
           <Button 
