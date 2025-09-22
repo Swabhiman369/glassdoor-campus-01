@@ -224,7 +224,7 @@ const CoursesSection = ({ mode = 'all' }: CoursesSectionProps) => {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6 min-w-0">
             {filteredCourses.length > 0 ? (
               filteredCourses.map((course, index) => (
                 <CourseCard

@@ -11,7 +11,7 @@ interface DynamicNavbarProps {
 }
 
 const ROUTE_MAP = {
-  dashboard: "/",
+  dashboard: "/dashboard",
   courses: "/courses",
   swips: "/swips",
   tests: "/tests",
@@ -49,6 +49,7 @@ const DynamicNavbar = ({ activeTab: propActiveTab }: DynamicNavbarProps) => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       className="backdrop-blur-2xl sticky top-0 z-50 px-4 sm:px-6 py-4"
+      style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}
     >
       {/* Filter Sheet for Swips */}
       {getCurrentTab() === 'swips' && (
@@ -76,7 +77,7 @@ const DynamicNavbar = ({ activeTab: propActiveTab }: DynamicNavbarProps) => {
       )}
       <div className="max-w-7xl mx-auto flex items-center justify-center">
         {/* Dynamic Island Navigation */}
-        <div className="backdrop-blur-xl bg-gradient-to-r from-primary/20 via-secondary/15 to-accent/10 px-3 py-2 rounded-full flex items-center space-x-1 border border-primary/20 shadow-lg shadow-primary/10">
+        <div className="backdrop-blur-xl bg-gradient-to-r from-primary/20 via-secondary/15 to-accent/10 px-3 py-2 rounded-full flex items-center space-x-1 border border-primary/20 shadow-lg shadow-primary/10 overflow-x-auto scrollbar-hide" style={{ minWidth: 0 }}>
           {tabs.map((tab) => {
             const isActive = getCurrentTab() === tab.id;
             return (

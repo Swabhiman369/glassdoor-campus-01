@@ -149,14 +149,24 @@ const SwipsPage: React.FC = () => {
             if (selectedItem) {
               return (
                 <div className="relative">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute -top-4 right-0 z-10 hover:bg-surface/60"
-                    onClick={() => setSelectedItem(null)}
-                  >
-                    <X className="h-5 w-5" />
-                  </Button>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full"
+                      onClick={() => setSelectedItem(null)}
+                    >
+                      Back
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="hover:bg-surface/60"
+                      onClick={() => setSelectedItem(null)}
+                    >
+                      <X className="h-5 w-5" />
+                    </Button>
+                  </div>
                   <ReelView
                     items={[selectedItem]}
                     type={selectedItem.type}

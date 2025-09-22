@@ -167,7 +167,7 @@ const CourseCard = ({ course, onEnroll, onToggleWishlist, index = 0 }: CourseCar
 
         {/* Price and Actions */}
         <div className="flex items-center justify-between pt-2 border-t border-white/10">
-          <div className="flex items-center space-x-2">
+    <div className="flex items-center space-x-2 flex-wrap min-w-0">
             <Badge variant="outline" className="bg-surface/60 border-white/10">
               {course.level}
             </Badge>
