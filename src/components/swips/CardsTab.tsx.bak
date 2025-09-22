@@ -1,0 +1,237 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Search, Filter, ChevronDown } from 'lucide-react';
+import useSwipsStore from '@/lib/useSwipsStore';
+import { Badge } from '../ui/badge';
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
+import SwipCard from './SwipCard';
+
+const CardsTab: React.FC = () => {
+  const {
+    getFilteredContent,
+    filters,
+    setFilters,
+    sorting,
+    setSorting,
+    toggleLike,
+    toggleWishlist,
+    updateProgress,
+    userInteractions
+  } = useSwipsStore();
+
+  const [showFilters, setShowFilters] = useState(false);
+  const [visibleCards, setVisibleCards] = useState(12);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  // Get filtered content
+  const cards = getFilteredContent().filter(item => item.type === 'card');
+
+  // Handle search
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilters({ ...filters, search: e.target.value });
+  };
+
+  // Get unique categories and difficulties
+  const categories = Array.from(new Set(cards.map(card => card.category)));
+  const difficulties = ['Beginner', 'Intermediate', 'Advanced'];
+
+  // Reset filters
+  const resetFilters = () => {
+    setFilters({
+      category: null,
+      difficulty: null,
+      type: 'card',
+      search: ''
+    });
+    setSorting('latest');
+  };
+
+  // Infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && visibleCards < cards.length) {
+          setVisibleCards((prev) => Math.min(prev + 8, cards.length));
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [cards.length, visibleCards]);
+
+  // Reset visible cards when filters change
+  useEffect(() => {
+    setVisibleCards(12);
+  }, [filters, sorting]);
+
+  if (cards.length === 0) {
+    return (
+      <div className="flex flex-col justify-center items-center h-[60vh] space-y-4">
+        <p className="text-lg text-muted-foreground">No cards match your search criteria</p>
+        <Button variant="outline" onClick={resetFilters}>
+          Reset filters
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Search and Filter Bar */}
+      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm p-4 -mx-4">
+        <div className="flex flex-col space-y-4">
+          {/* Search and Filter Toggle */}
+          <div className="flex items-center space-x-4">
+            <div className="flex-1 relative">
+              <Input
+                type="text"
+                placeholder="Search topics..."
+                value={filters.search}
+                onChange={handleSearch}
+                className="pl-10"
+              />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setShowFilters(!showFilters)}
+              className={showFilters ? 'bg-primary/20' : ''}
+            >
+              <Filter className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Expanded Filters */}
+          <motion.div
+            initial={false}
+            animate={{ height: showFilters ? 'auto' : 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="space-y-4 py-2">
+              {/* Categories */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-medium">Categories</h3>
+                <div className="flex flex-wrap gap-2">
+                  {categories.map((category) => (
+                    <Badge
+                      key={category}
+                      variant={filters.category === category ? "default" : "outline"}
+                      className="cursor-pointer hover:bg-primary/20"
+                      onClick={() => {
+                        setFilters({
+                          ...filters,
+                          category: filters.category === category ? null : category
+                        });
+                      }}
+                    >
+                      {category}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Difficulties */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-medium">Difficulty Level</h3>
+                <div className="flex flex-wrap gap-2">
+                  {difficulties.map((difficulty) => (
+                    <Badge
+                      key={difficulty}
+                      variant={filters.difficulty === difficulty ? "default" : "outline"}
+                      className="cursor-pointer hover:bg-primary/20"
+                      onClick={() => {
+                        setFilters({
+                          ...filters,
+                          difficulty: filters.difficulty === difficulty ? null : difficulty
+                        });
+                      }}
+                    >
+                      {difficulty}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sort Options */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-medium">Sort By</h3>
+                <div className="flex gap-2">
+                  {[
+                    { value: 'latest', label: 'Latest' },
+                    { value: 'popular', label: 'Popular' },
+                    { value: 'trending', label: 'Trending' }
+                  ].map(({ value, label }) => (
+                    <Badge
+                      key={value}
+                      variant={sorting === value ? "default" : "outline"}
+                      className="cursor-pointer hover:bg-primary/20"
+                      onClick={() => setSorting(value as typeof sorting)}
+                    >
+                      {label}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {cards.slice(0, visibleCards).map((card, index) => {
+          const interaction = userInteractions[card.id] || {
+            isWishlisted: card.isWishlisted || false,
+            isEnrolled: card.isEnrolled || false,
+            progress: 0
+          };
+
+          return (
+            <motion.div
+              key={card.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index % 8 * 0.05 }}
+            >
+              <SwipCard
+                {...card}
+                isWishlisted={interaction.isWishlisted}
+                isEnrolled={interaction.isEnrolled}
+                progress={interaction.progress}
+                onLike={() => toggleLike(card.id, true)}
+                onDislike={() => toggleLike(card.id, false)}
+                onWishlist={() => toggleWishlist(card.id)}
+                onEnroll={() => updateProgress(card.id, 0)}
+              />
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Load More Trigger */}
+      {visibleCards < cards.length && (
+        <div
+          ref={loadMoreRef}
+          className="h-20 flex items-center justify-center"
+        >
+          <motion.div
+            animate={{ y: [0, 5, 0] }}
+            transition={{ repeat: Infinity, duration: 1.5 }}
+          >
+            <ChevronDown className="h-6 w-6 text-muted-foreground" />
+          </motion.div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CardsTab;

@@ -23,7 +23,11 @@ import renaissanceArtImg from "@/assets/topics/renaissance-art.jpg";
 import machineLearningImg from "@/assets/topics/machine-learning.jpg";
 import digitalMarketingImg from "@/assets/topics/digital-marketing.jpg";
 
-const CoursesSection = () => {
+interface CoursesSectionProps {
+  mode?: 'all' | 'wishlist' | 'enrolled';
+}
+
+const CoursesSection = ({ mode = 'all' }: CoursesSectionProps) => {
   const [selectedTab, setSelectedTab] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
   const [filterBy, setFilterBy] = useState("all");

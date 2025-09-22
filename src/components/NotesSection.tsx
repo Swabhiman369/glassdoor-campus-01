@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   FileText, 
   ChevronLeft, 
@@ -16,68 +16,83 @@ import {
   Clock,
   CheckCircle
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import useNotesStore from "@/lib/useNotesStore";
+import NoteEditor from "./NoteEditor";
 
 const NotesSection = () => {
+  const { notes, currentNoteId, setCurrentNote, updateNoteProgress } = useNotesStore();
   const [viewMode, setViewMode] = useState("slides"); // "slides" or "reader"
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(false);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
 
-  const slideNotes = [
-    {
-      id: 1,
-      title: "React Hooks Introduction",
-      content: "React Hooks are functions that let you use state and other React features without writing a class component.",
-      category: "React",
-      progress: 65,
-      totalSlides: 24
-    },
-    {
-      id: 2,
-      title: "JavaScript ES6 Features",
-      content: "ES6 introduced many new features including arrow functions, destructuring, template literals, and more.",
-      category: "JavaScript",
-      progress: 42,
-      totalSlides: 18
-    },
-    {
-      id: 3,
-      title: "CSS Grid Layout",
-      content: "CSS Grid Layout is a two-dimensional layout system for the web that handles both columns and rows.",
-      category: "CSS",
-      progress: 88,
-      totalSlides: 15
+  // Convert notes object to array and sort by lastModified
+  const notesList = Object.values(notes).sort((a, b) => 
+    new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime()
+  );
+
+  // Get current note
+  const currentNote = currentNoteId ? notes[currentNoteId] : notesList[0];
+
+  useEffect(() => {
+    // Set initial note if none selected
+    if (!currentNoteId && notesList.length > 0) {
+      setCurrentNote(notesList[0].id);
     }
-  ];
+  }, [currentNoteId, notesList, setCurrentNote]);
 
-  const fullNotes = [
-    {
-      id: 1,
-      title: "Complete React Guide",
-      category: "React",
-      lastModified: "2 hours ago",
-      readTime: "15 min",
-      status: "updated"
-    },
-    {
-      id: 2,
-      title: "JavaScript Fundamentals",
-      category: "JavaScript",  
-      lastModified: "1 day ago",
-      readTime: "22 min",
-      status: "completed"
-    },
-    {
-      id: 3,
-      title: "Modern CSS Techniques",
-      category: "CSS",
-      lastModified: "3 days ago", 
-      readTime: "18 min",
-      status: "in-progress"
+  // Update progress when slide changes
+  useEffect(() => {
+    if (currentNote) {
+      updateNoteProgress(currentNote.id, currentSlide);
     }
-  ];
+  }, [currentSlide, currentNote, updateNoteProgress]);
 
-  const currentNote = slideNotes[0]; // For demo purposes
+  // Auto-play functionality
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isAutoPlay && currentNote) {
+      interval = setInterval(() => {
+        if (currentSlide < currentNote.totalSlides - 1) {
+          setCurrentSlide(prev => prev + 1);
+        } else {
+          setIsAutoPlay(false);
+        }
+      }, 3000);
+    }
+    return () => clearInterval(interval);
+  }, [isAutoPlay, currentSlide, currentNote]);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
+  // Handle note selection
+  const handleNoteSelect = (noteId: string) => {
+    setCurrentNote(noteId);
+    setCurrentSlide(0);
+  };
+
+  if (!currentNote) {
+    return (
+      <div className="p-6 text-center">
+        <h1 className="text-3xl font-bold text-foreground mb-4">No Notes Available</h1>
+        <p className="text-muted-foreground">Get started by creating your first note!</p>
+      </div>
+    );
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -210,7 +225,12 @@ const NotesSection = () => {
                     {isAutoPlay ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                     Auto-play
                   </Button>
-                  <Button variant="outline" size="sm" className="glass-card border-white/20">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="glass-card border-white/20"
+                    onClick={() => setIsEditorOpen(true)}
+                  >
                     <Edit className="w-4 h-4" />
                     Edit
                   </Button>
@@ -226,7 +246,7 @@ const NotesSection = () => {
             <div className="glass-card p-6 rounded-2xl">
               <h3 className="text-lg font-semibold text-foreground mb-4">Your Slide Notes</h3>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {slideNotes.map((note, index) => (
+                {notesList.map((note, index) => (
                   <motion.div
                     key={note.id}
                     variants={itemVariants}
@@ -270,7 +290,7 @@ const NotesSection = () => {
             <div className="glass-card p-6 rounded-2xl">
               <h3 className="text-lg font-semibold text-foreground mb-4">Documentation</h3>
               <div className="space-y-3">
-                {fullNotes.map((note, index) => (
+                {notesList.map((note, index) => (
                   <motion.div
                     key={note.id}
                     variants={itemVariants}
@@ -370,6 +390,13 @@ const NotesSection = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Note Editor Dialog */}
+      <NoteEditor 
+        open={isEditorOpen} 
+        onOpenChange={setIsEditorOpen}
+        noteId={currentNoteId}
+      />
     </motion.div>
   );
 };

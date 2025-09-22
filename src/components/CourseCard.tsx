@@ -70,7 +70,7 @@ const CourseCard = ({ course, onEnroll, onToggleWishlist, index = 0 }: CourseCar
         <div className="absolute inset-0 flex items-center justify-center">
           <BookOpen className="w-12 h-12 text-primary" />
         </div>
-        
+        <br />
         {/* Play Button Overlay */}
         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-smooth flex items-center justify-center">
           <Button 

@@ -1,0 +1,173 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ThumbsUp, ThumbsDown, Book, Heart, CheckCircle2, Timer } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import type { SwipContent } from '@/types/swip';
+
+interface SwipCardProps extends Omit<SwipContent, 'type'> {
+  isLiked: boolean;
+  isDisliked: boolean;
+  isWishlisted: boolean;
+  isEnrolled: boolean;
+  progress: number;
+  type?: 'video' | 'card' | 'note';
+  onLike: () => void;
+  onDislike: () => void;
+  onWishlist: () => void;
+  onEnroll: () => void;
+}
+
+const SwipCard: React.FC<SwipCardProps> = ({
+  id,
+  title,
+  description,
+  category,
+  thumbnail,
+  difficulty,
+  likes,
+  views,
+  tags,
+  instructor,
+  lastUpdated,
+  type,
+  isLiked,
+  isDisliked,
+  isWishlisted,
+  isEnrolled,
+  progress,
+  onLike,
+  onDislike,
+  onWishlist,
+  onEnroll
+}) => {
+  const navigate = useNavigate();
+
+  const handleReadMore = () => {
+    if (type === 'note') {
+      navigate(`/documentation?topicId=${id}`);
+    }
+  };
+
+  const difficultyColor = {
+    'Beginner': 'bg-green-500/20 text-green-500 border-green-500/20',
+    'Intermediate': 'bg-yellow-500/20 text-yellow-500 border-yellow-500/20',
+    'Advanced': 'bg-red-500/20 text-red-500 border-red-500/20'
+  }[difficulty];
+
+  return (
+    <Card className="w-full glass-card hover:shadow-glow transition-smooth border border-white/10">
+      <div className="aspect-video relative overflow-hidden rounded-t-xl">
+        <img
+          src={thumbnail}
+          alt={title}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4">
+          <Badge variant="outline" className={difficultyColor}>
+            {difficulty}
+          </Badge>
+        </div>
+      </div>
+      
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1 flex-grow">
+            <h3 className="text-lg font-semibold text-foreground line-clamp-2">{title}</h3>
+            <p className="text-sm text-muted-foreground">by {instructor}</p>
+          </div>
+          {isEnrolled && (
+            <Badge variant="outline" className="bg-primary/20 text-primary border-primary/20">
+              Enrolled
+            </Badge>
+          )}
+        </div>
+        
+        <p className="text-muted-foreground text-sm mt-2 line-clamp-2">{description}</p>
+
+        {/* Tags */}
+        <div className="flex flex-wrap gap-2 mt-3">
+          {tags.map(tag => (
+            <Badge key={tag} variant="outline" className="bg-surface/60 border-white/10">
+              {tag}
+            </Badge>
+          ))}
+        </div>
+
+        {/* Progress bar for enrolled content */}
+        {isEnrolled && progress > 0 && (
+          <div className="mt-3 space-y-1">
+            <Progress value={progress} className="h-1" />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>{progress}% complete</span>
+              <span>
+                <Timer className="w-3 h-3 inline mr-1" />
+                Updated {lastUpdated}
+              </span>
+            </div>
+          </div>
+        )}
+      </CardContent>
+
+      <CardFooter className="p-4 pt-0 flex justify-between">
+        <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className={isLiked ? 'bg-primary/20' : ''}
+            onClick={onLike}
+          >
+            <ThumbsUp className={`h-4 w-4 mr-1 ${isLiked ? 'fill-primary' : ''}`} />
+            {likes}
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            className={isDisliked ? 'bg-destructive/20' : ''}
+            onClick={onDislike}
+          >
+            <ThumbsDown className={`h-4 w-4 mr-1 ${isDisliked ? 'fill-destructive' : ''}`} />
+          </Button>
+        </div>
+
+        <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className={isWishlisted ? 'bg-primary/20' : ''}
+            onClick={onWishlist}
+          >
+            <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-primary' : ''}`} />
+          </Button>
+          
+          {type === 'note' ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleReadMore}
+            >
+              <Book className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              variant={isEnrolled ? "ghost" : "default"}
+              size="sm"
+              onClick={onEnroll}
+            >
+              {isEnrolled ? (
+                <CheckCircle2 className="h-4 w-4 text-primary" />
+              ) : (
+                "Enroll"
+              )}
+            </Button>
+          )}
+        </div>
+      </CardFooter>
+    </Card>
+  );
+};
+
+export default SwipCard;
