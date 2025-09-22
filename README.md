@@ -1,73 +1,116 @@
-# Welcome to your Lovable project
+📚 Interactive AI Tutor Platform
 
-## Project info
+An AI-powered interactive tutoring platform inspired by modern e-learning and content platforms.
+It combines real-time AI teaching sessions, structured courses, swipe-based learning (like Instagram Reels/Inshorts), and personalized student dashboards.
 
-**URL**: https://lovable.dev/projects/dbdd0f9d-2d92-4e7c-b558-8bafb20a1030
+🚀 Features
+🎥 AI Tutor Session (YouTube-like Layout)
 
-## How can I edit this code?
+3D AI Teacher video player with real-time interaction.
 
-There are several ways of editing your application.
+Floating digital board overlay (movable & resizable).
 
-**Use Lovable**
+Collapsible Resources sidebar (YouTube videos, articles, worksheets).
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/dbdd0f9d-2d92-4e7c-b558-8bafb20a1030) and start prompting.
+Collapsible Doubts & Q&A section with live question input and chat history.
 
-Changes made via Lovable will be committed automatically to this repo.
+📂 Courses Section
 
-**Use your preferred IDE**
+Full tab-based navigation:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+All Courses (16–20 courses)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Subjects (6–8 subjects)
 
-Follow these steps:
+My Courses (3–8 enrolled courses)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Wishlist (2–4 saved courses)
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Functional filters, sorting, search.
 
-# Step 3: Install the necessary dependencies.
-npm i
+Pricing shown in ₹ INR.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+Enrolled courses marked with “Enrolled”.
+
+📱 Swips Section (Replaces Notes)
+
+Two modes: Videos | Cards.
+
+All tab: grid layout (9:16 ratio), subjects filter, search, sorting.
+
+Liked, Wishlist, Enrolled tabs: single-content swipe mode (like Instagram Reels / YouTube Shorts).
+
+Interactive actions: like, dislike, wishlist, enroll, read more → documentation page.
+
+Responsive design with swipe/arrow navigation.
+
+👤 Profile Section
+
+Left: User details (editable profile: name, email, password, profile picture).
+
+Right: Student reports (progress, enrolled courses, achievements).
+
+Settings: account settings, notifications, privacy controls.
+
+🛠️ Tech Stack
+
+Frontend: React + Tailwind CSS + Vite
+
+UI Components: ShadCN/UI, Lucide Icons
+
+Routing: React Router
+
+State Management: React hooks (useState, useEffect, etc.)
+
+Backend (planned): Node.js / Python (API for user data, Q&A, enrollments)
+
+Other Tools:
+
+AI integration (3D teacher, content recommendation)
+
+Markdown/Docs for long notes
+
+📖 How It Works
+
+Dashboard → Access AI Tutor, Courses, Swips, Profile.
+
+AI Tutor → Learn interactively with a real-time AI teacher and floating storyboard.
+
+Courses → Browse, filter, enroll, or add to wishlist.
+
+Swips → Quick learning via videos (shorts) and cards (Inshorts-style).
+
+Profile → Manage personal details, track learning progress, and update settings.
+
+🔮 Roadmap
+
+ AI-powered Q&A recommendation in real-time.
+
+ More advanced analytics in Profile reports.
+
+ Collaborative learning features (group chat, peer Q&A).
+
+ Offline mode for downloaded courses.
+
+⚡ Getting Started
+# Clone the repository
+git clone https://github.com/your-username/interactive-ai-tutor.git
+
+# Navigate into the project
+cd interactive-ai-tutor
+
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
-```
 
-**Edit a file directly in GitHub**
+🤝 Contributing
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Contributions are welcome! Please fork the repo, create a branch, and submit a pull request.
 
-**Use GitHub Codespaces**
+📜 License
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+This project is licensed under the MIT License.
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/dbdd0f9d-2d92-4e7c-b558-8bafb20a1030) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+✨ Your personal AI tutor — learn smarter, faster, and interactively!
